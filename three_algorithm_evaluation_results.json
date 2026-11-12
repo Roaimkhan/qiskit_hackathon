@@ -1,0 +1,3539 @@
+{
+  "description": "18-case comparison of QAOA, exact branch-and-bound, and classical MILP load shedding",
+  "objective_note": "Revenue lost is load_kw * recovery_ratio proxy; objective cost adds fairness penalty for prior outages.",
+  "configuration": {
+    "fairness_penalty": 15.0,
+    "qaoa_maxiter": 60,
+    "qaoa_shots": 2048,
+    "seed": 7
+  },
+  "summary": {
+    "QAOA": {
+      "average_runtime_seconds": 0.5236992041690327,
+      "average_optimality_gap_percent": 0.0,
+      "feasible_count": 17,
+      "success_rate_percent": 94.44444444444444
+    },
+    "Exact": {
+      "average_runtime_seconds": 0.00016022111069307558,
+      "average_optimality_gap_percent": 0.0,
+      "feasible_count": 17,
+      "success_rate_percent": 94.44444444444444
+    },
+    "Classical MILP": {
+      "average_runtime_seconds": 0.00815548339030809,
+      "average_optimality_gap_percent": 0.0,
+      "feasible_count": 17,
+      "success_rate_percent": 94.44444444444444
+    }
+  },
+  "cases": [
+    {
+      "case_id": "S1",
+      "tier": "Tier 1: small",
+      "description": "balanced residential",
+      "transformer_count": 4,
+      "deficit_target_kw": 100.0,
+      "outage_counts": {
+        "T1": 1,
+        "T4": 2
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 80.0,
+          "recovery_ratio": 0.65,
+          "is_critical": false
+        },
+        {
+          "id": "T2",
+          "load_kw": 95.0,
+          "recovery_ratio": 0.72,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 110.0,
+          "recovery_ratio": 0.8,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 125.0,
+          "recovery_ratio": 0.55,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 88.0,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.6528776449995348,
+          "shed_kw": 110.0,
+          "revenue_lost_proxy": 88.0,
+          "fairness_adjusted_objective_cost": 88.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 100.0,
+            "achievable_shed_kw": 110.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 410.0,
+            "revenue_lost": 88.0,
+            "historical_outage_counts": {
+              "T1": 1,
+              "T2": 0,
+              "T3": 0,
+              "T4": 2
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 9,
+            "reps": 1,
+            "qaoa_energy": 851.851524513624,
+            "quantum_choice": [
+              0,
+              0,
+              1,
+              0
+            ],
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              0
+            ],
+            "P(quantum_choice)": 0.0024,
+            "random_guess": 0.0625,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.0001770980015862733,
+          "shed_kw": 110.0,
+          "revenue_lost_proxy": 88.0,
+          "fairness_adjusted_objective_cost": 88.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 100.0,
+            "achievable_shed_kw": 110.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 410.0,
+            "revenue_lost": 88.0,
+            "adjusted_objective_cost": 88.0,
+            "historical_outage_counts": {
+              "T1": 1,
+              "T2": 0,
+              "T3": 0,
+              "T4": 2
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              0
+            ],
+            "selected_transformers": [
+              "T3"
+            ],
+            "visited_search_nodes": 27,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.020114315004320815,
+          "shed_kw": 110.0,
+          "revenue_lost_proxy": 88.0,
+          "fairness_adjusted_objective_cost": 88.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 100.0,
+            "achievable_shed_kw": 110.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 410.0,
+            "revenue_lost": 88.0,
+            "historical_outage_counts": {
+              "T1": 1,
+              "T2": 0,
+              "T3": 0,
+              "T4": 2
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 4,
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              0
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "S2",
+      "tier": "Tier 1: small",
+      "description": "one critical node",
+      "transformer_count": 4,
+      "deficit_target_kw": 120.0,
+      "outage_counts": {},
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 100.0,
+          "recovery_ratio": 0.98,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 70.0,
+          "recovery_ratio": 0.32,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 130.0,
+          "recovery_ratio": 0.61,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 90.0,
+          "recovery_ratio": 0.44,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 62.0,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.3861973860039143,
+          "shed_kw": 160.0,
+          "revenue_lost_proxy": 62.0,
+          "fairness_adjusted_objective_cost": 62.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": false,
+            "T3": true,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 120.0,
+            "achievable_shed_kw": 160.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 290.0,
+            "revenue_lost": 62.0,
+            "historical_outage_counts": {
+              "T2": 0,
+              "T3": 0,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 7,
+            "reps": 1,
+            "qaoa_energy": 175.64659619284916,
+            "quantum_choice": [
+              1,
+              0,
+              1
+            ],
+            "selected_shed_bits": [
+              1,
+              0,
+              1
+            ],
+            "P(quantum_choice)": 0.0122,
+            "random_guess": 0.125,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00011895800707861781,
+          "shed_kw": 160.0,
+          "revenue_lost_proxy": 62.0,
+          "fairness_adjusted_objective_cost": 62.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": false,
+            "T3": true,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 120.0,
+            "achievable_shed_kw": 160.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 290.0,
+            "revenue_lost": 62.0,
+            "adjusted_objective_cost": 62.0,
+            "historical_outage_counts": {
+              "T2": 0,
+              "T3": 0,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              1,
+              0,
+              1
+            ],
+            "selected_transformers": [
+              "T2",
+              "T4"
+            ],
+            "visited_search_nodes": 11,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.01571051099745091,
+          "shed_kw": 160.0,
+          "revenue_lost_proxy": 62.0,
+          "fairness_adjusted_objective_cost": 62.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": false,
+            "T3": true,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 120.0,
+            "achievable_shed_kw": 160.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 290.0,
+            "revenue_lost": 62.0,
+            "historical_outage_counts": {
+              "T2": 0,
+              "T3": 0,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 3,
+            "selected_shed_bits": [
+              1,
+              0,
+              1
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "S3",
+      "tier": "Tier 1: small",
+      "description": "mixed recovery",
+      "transformer_count": 4,
+      "deficit_target_kw": 160.0,
+      "outage_counts": {
+        "T1": 3,
+        "T3": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 60.0,
+          "recovery_ratio": 0.25,
+          "is_critical": false
+        },
+        {
+          "id": "T2",
+          "load_kw": 140.0,
+          "recovery_ratio": 0.91,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 85.0,
+          "recovery_ratio": 0.48,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 115.0,
+          "recovery_ratio": 0.73,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 139.75,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.28440795600181445,
+          "shed_kw": 200.0,
+          "revenue_lost_proxy": 124.75,
+          "fairness_adjusted_objective_cost": 139.75,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 160.0,
+            "achievable_shed_kw": 200.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 400.0,
+            "revenue_lost": 124.75,
+            "historical_outage_counts": {
+              "T1": 3,
+              "T2": 0,
+              "T3": 1,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 9,
+            "reps": 1,
+            "qaoa_energy": 1034.117072639962,
+            "quantum_choice": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "P(quantum_choice)": 0.0073,
+            "random_guess": 0.0625,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00011544500011950731,
+          "shed_kw": 200.0,
+          "revenue_lost_proxy": 124.75,
+          "fairness_adjusted_objective_cost": 139.75,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 160.0,
+            "achievable_shed_kw": 200.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 400.0,
+            "revenue_lost": 124.75,
+            "adjusted_objective_cost": 139.75,
+            "historical_outage_counts": {
+              "T1": 3,
+              "T2": 0,
+              "T3": 1,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "selected_transformers": [
+              "T3",
+              "T4"
+            ],
+            "visited_search_nodes": 27,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.0166163929970935,
+          "shed_kw": 200.0,
+          "revenue_lost_proxy": 124.75,
+          "fairness_adjusted_objective_cost": 139.75,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 160.0,
+            "achievable_shed_kw": 200.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 400.0,
+            "revenue_lost": 124.75,
+            "historical_outage_counts": {
+              "T1": 3,
+              "T2": 0,
+              "T3": 1,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 4,
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "S4",
+      "tier": "Tier 1: small",
+      "description": "high target",
+      "transformer_count": 4,
+      "deficit_target_kw": 250.0,
+      "outage_counts": {
+        "T2": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 105.0,
+          "recovery_ratio": 0.88,
+          "is_critical": false
+        },
+        {
+          "id": "T2",
+          "load_kw": 75.0,
+          "recovery_ratio": 0.4,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 125.0,
+          "recovery_ratio": 0.67,
+          "is_critical": true
+        },
+        {
+          "id": "T4",
+          "load_kw": 95.0,
+          "recovery_ratio": 0.3,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 165.9,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.18007464399852324,
+          "shed_kw": 275.0,
+          "revenue_lost_proxy": 150.9,
+          "fairness_adjusted_objective_cost": 165.9,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": false,
+            "T2": false,
+            "T3": true,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 250.0,
+            "achievable_shed_kw": 275.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 275.0,
+            "revenue_lost": 150.9,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 1,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 6,
+            "reps": 1,
+            "qaoa_energy": 1030.2008078971605,
+            "quantum_choice": [
+              1,
+              1,
+              1
+            ],
+            "selected_shed_bits": [
+              1,
+              1,
+              1
+            ],
+            "P(quantum_choice)": 0.1484,
+            "random_guess": 0.125,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00011939799878746271,
+          "shed_kw": 275.0,
+          "revenue_lost_proxy": 150.9,
+          "fairness_adjusted_objective_cost": 165.9,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": false,
+            "T2": false,
+            "T3": true,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 250.0,
+            "achievable_shed_kw": 275.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 275.0,
+            "revenue_lost": 150.9,
+            "adjusted_objective_cost": 165.9,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 1,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              1,
+              1,
+              1
+            ],
+            "selected_transformers": [
+              "T1",
+              "T2",
+              "T4"
+            ],
+            "visited_search_nodes": 7,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.001405406990670599,
+          "shed_kw": 275.0,
+          "revenue_lost_proxy": 150.9,
+          "fairness_adjusted_objective_cost": 165.9,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": false,
+            "T2": false,
+            "T3": true,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 250.0,
+            "achievable_shed_kw": 275.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 275.0,
+            "revenue_lost": 150.9,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 1,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 3,
+            "selected_shed_bits": [
+              1,
+              1,
+              1
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "M1",
+      "tier": "Tier 2: standard",
+      "description": "main-feeder six-node slice",
+      "transformer_count": 6,
+      "deficit_target_kw": 100.0,
+      "outage_counts": {
+        "T5": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 180.0,
+          "recovery_ratio": 0.98,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 120.0,
+          "recovery_ratio": 0.95,
+          "is_critical": true
+        },
+        {
+          "id": "T3",
+          "load_kw": 250.0,
+          "recovery_ratio": 0.86,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 160.0,
+          "recovery_ratio": 0.92,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 300.0,
+          "recovery_ratio": 0.28,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 140.0,
+          "recovery_ratio": 0.48,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 67.2,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.2622689339914359,
+          "shed_kw": 140.0,
+          "revenue_lost_proxy": 67.2,
+          "fairness_adjusted_objective_cost": 67.2,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": true,
+            "T6": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 100.0,
+            "achievable_shed_kw": 140.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 67.2,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 1,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 9,
+            "reps": 1,
+            "qaoa_energy": 1734.5098575869793,
+            "quantum_choice": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "selected_shed_bits": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "P(quantum_choice)": 0.0063,
+            "random_guess": 0.0625,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00011036399519070983,
+          "shed_kw": 140.0,
+          "revenue_lost_proxy": 67.2,
+          "fairness_adjusted_objective_cost": 67.2,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": true,
+            "T6": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 100.0,
+            "achievable_shed_kw": 140.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 67.2,
+            "adjusted_objective_cost": 67.2,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 1,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "selected_transformers": [
+              "T6"
+            ],
+            "visited_search_nodes": 29,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.001400759007083252,
+          "shed_kw": 140.0,
+          "revenue_lost_proxy": 67.2,
+          "fairness_adjusted_objective_cost": 67.2,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": true,
+            "T6": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 100.0,
+            "achievable_shed_kw": 140.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 67.2,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 1,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 4,
+            "selected_shed_bits": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "M2",
+      "tier": "Tier 2: standard",
+      "description": "main-feeder six-node slice",
+      "transformer_count": 6,
+      "deficit_target_kw": 200.0,
+      "outage_counts": {},
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 180.0,
+          "recovery_ratio": 0.98,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 120.0,
+          "recovery_ratio": 0.95,
+          "is_critical": true
+        },
+        {
+          "id": "T3",
+          "load_kw": 250.0,
+          "recovery_ratio": 0.86,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 160.0,
+          "recovery_ratio": 0.92,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 300.0,
+          "recovery_ratio": 0.28,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 140.0,
+          "recovery_ratio": 0.48,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 84.00000000000001,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.26944421100779437,
+          "shed_kw": 300.0,
+          "revenue_lost_proxy": 84.00000000000001,
+          "fairness_adjusted_objective_cost": 84.00000000000001,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": false,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 200.0,
+            "achievable_shed_kw": 300.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 84.00000000000001,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 0,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 9,
+            "reps": 1,
+            "qaoa_energy": 1252.6621538016661,
+            "quantum_choice": [
+              0,
+              0,
+              1,
+              0
+            ],
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              0
+            ],
+            "P(quantum_choice)": 0.0049,
+            "random_guess": 0.0625,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00010559298971202224,
+          "shed_kw": 300.0,
+          "revenue_lost_proxy": 84.00000000000001,
+          "fairness_adjusted_objective_cost": 84.00000000000001,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": false,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 200.0,
+            "achievable_shed_kw": 300.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 84.0,
+            "adjusted_objective_cost": 84.0,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 0,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              0
+            ],
+            "selected_transformers": [
+              "T5"
+            ],
+            "visited_search_nodes": 27,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.001481754006817937,
+          "shed_kw": 300.0,
+          "revenue_lost_proxy": 84.00000000000001,
+          "fairness_adjusted_objective_cost": 84.00000000000001,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": false,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 200.0,
+            "achievable_shed_kw": 300.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 84.00000000000001,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 0,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 4,
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              0
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "M3",
+      "tier": "Tier 2: standard",
+      "description": "main-feeder six-node slice",
+      "transformer_count": 6,
+      "deficit_target_kw": 388.0,
+      "outage_counts": {
+        "T5": 2,
+        "T6": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 180.0,
+          "recovery_ratio": 0.98,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 120.0,
+          "recovery_ratio": 0.95,
+          "is_critical": true
+        },
+        {
+          "id": "T3",
+          "load_kw": 250.0,
+          "recovery_ratio": 0.86,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 160.0,
+          "recovery_ratio": 0.92,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 300.0,
+          "recovery_ratio": 0.28,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 140.0,
+          "recovery_ratio": 0.48,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 196.20000000000002,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.25264744499872904,
+          "shed_kw": 440.0,
+          "revenue_lost_proxy": 151.20000000000002,
+          "fairness_adjusted_objective_cost": 196.20000000000002,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": false,
+            "T6": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 388.0,
+            "achievable_shed_kw": 440.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 151.20000000000002,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 2,
+              "T6": 1
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 9,
+            "reps": 1,
+            "qaoa_energy": 1275.6422938410772,
+            "quantum_choice": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "P(quantum_choice)": 0.0078,
+            "random_guess": 0.0625,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00013387500075623393,
+          "shed_kw": 440.0,
+          "revenue_lost_proxy": 151.20000000000002,
+          "fairness_adjusted_objective_cost": 196.20000000000002,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": false,
+            "T6": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 388.0,
+            "achievable_shed_kw": 440.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 151.2,
+            "adjusted_objective_cost": 196.2,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 2,
+              "T6": 1
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "selected_transformers": [
+              "T5",
+              "T6"
+            ],
+            "visited_search_nodes": 27,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.0014695339923491701,
+          "shed_kw": 440.0,
+          "revenue_lost_proxy": 151.20000000000002,
+          "fairness_adjusted_objective_cost": 196.20000000000002,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": false,
+            "T6": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 388.0,
+            "achievable_shed_kw": 440.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 151.20000000000002,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 2,
+              "T6": 1
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 4,
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "M4",
+      "tier": "Tier 2: standard",
+      "description": "main-feeder six-node slice",
+      "transformer_count": 6,
+      "deficit_target_kw": 500.0,
+      "outage_counts": {
+        "T4": 1,
+        "T5": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 180.0,
+          "recovery_ratio": 0.98,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 120.0,
+          "recovery_ratio": 0.95,
+          "is_critical": true
+        },
+        {
+          "id": "T3",
+          "load_kw": 250.0,
+          "recovery_ratio": 0.86,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 160.0,
+          "recovery_ratio": 0.92,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 300.0,
+          "recovery_ratio": 0.28,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 140.0,
+          "recovery_ratio": 0.48,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 314.0,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.25862879199848976,
+          "shed_kw": 550.0,
+          "revenue_lost_proxy": 299.0,
+          "fairness_adjusted_objective_cost": 314.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": true,
+            "T5": false,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 500.0,
+            "achievable_shed_kw": 550.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 299.0,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 1,
+              "T5": 1,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 9,
+            "reps": 1,
+            "qaoa_energy": 2083.7565309274346,
+            "quantum_choice": [
+              1,
+              0,
+              1,
+              0
+            ],
+            "selected_shed_bits": [
+              1,
+              0,
+              1,
+              0
+            ],
+            "P(quantum_choice)": 0.0054,
+            "random_guess": 0.0625,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00010254498920403421,
+          "shed_kw": 550.0,
+          "revenue_lost_proxy": 299.0,
+          "fairness_adjusted_objective_cost": 314.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": true,
+            "T5": false,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 500.0,
+            "achievable_shed_kw": 550.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 299.0,
+            "adjusted_objective_cost": 314.0,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 1,
+              "T5": 1,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              1,
+              0,
+              1,
+              0
+            ],
+            "selected_transformers": [
+              "T3",
+              "T5"
+            ],
+            "visited_search_nodes": 21,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.01604196400148794,
+          "shed_kw": 550.0,
+          "revenue_lost_proxy": 299.0,
+          "fairness_adjusted_objective_cost": 314.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": true,
+            "T5": false,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 500.0,
+            "achievable_shed_kw": 550.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 299.0,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 1,
+              "T5": 1,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 4,
+            "selected_shed_bits": [
+              1,
+              0,
+              1,
+              0
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "M5",
+      "tier": "Tier 2: standard",
+      "description": "main-feeder six-node slice",
+      "transformer_count": 6,
+      "deficit_target_kw": 700.0,
+      "outage_counts": {},
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 180.0,
+          "recovery_ratio": 0.98,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 120.0,
+          "recovery_ratio": 0.95,
+          "is_critical": true
+        },
+        {
+          "id": "T3",
+          "load_kw": 250.0,
+          "recovery_ratio": 0.86,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 160.0,
+          "recovery_ratio": 0.92,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 300.0,
+          "recovery_ratio": 0.28,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 140.0,
+          "recovery_ratio": 0.48,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 446.20000000000005,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.23633307000272907,
+          "shed_kw": 710.0,
+          "revenue_lost_proxy": 446.20000000000005,
+          "fairness_adjusted_objective_cost": 446.20000000000005,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false,
+            "T5": false,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 700.0,
+            "achievable_shed_kw": 710.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 446.20000000000005,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 0,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 8,
+            "reps": 1,
+            "qaoa_energy": 2708.076355453986,
+            "quantum_choice": [
+              1,
+              1,
+              1,
+              0
+            ],
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              0
+            ],
+            "P(quantum_choice)": 0.0317,
+            "random_guess": 0.0625,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.0001104540133383125,
+          "shed_kw": 710.0,
+          "revenue_lost_proxy": 446.20000000000005,
+          "fairness_adjusted_objective_cost": 446.20000000000005,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false,
+            "T5": false,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 700.0,
+            "achievable_shed_kw": 710.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 446.2,
+            "adjusted_objective_cost": 446.2,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 0,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              0
+            ],
+            "selected_transformers": [
+              "T3",
+              "T4",
+              "T5"
+            ],
+            "visited_search_nodes": 9,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.001480922001064755,
+          "shed_kw": 710.0,
+          "revenue_lost_proxy": 446.20000000000005,
+          "fairness_adjusted_objective_cost": 446.20000000000005,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false,
+            "T5": false,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 700.0,
+            "achievable_shed_kw": 710.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 446.20000000000005,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 0,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 4,
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              0
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "M6",
+      "tier": "Tier 2: standard",
+      "description": "main-feeder six-node slice",
+      "transformer_count": 6,
+      "deficit_target_kw": 850.0,
+      "outage_counts": {
+        "T5": 3,
+        "T6": 2
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 180.0,
+          "recovery_ratio": 0.98,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 120.0,
+          "recovery_ratio": 0.95,
+          "is_critical": true
+        },
+        {
+          "id": "T3",
+          "load_kw": 250.0,
+          "recovery_ratio": 0.86,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 160.0,
+          "recovery_ratio": 0.92,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 300.0,
+          "recovery_ratio": 0.28,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 140.0,
+          "recovery_ratio": 0.48,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 588.4000000000001,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.11217238700191956,
+          "shed_kw": 850.0,
+          "revenue_lost_proxy": 513.4000000000001,
+          "fairness_adjusted_objective_cost": 588.4000000000001,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false,
+            "T5": false,
+            "T6": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 850.0,
+            "achievable_shed_kw": 850.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 513.4000000000001,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 3,
+              "T6": 2
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 4,
+            "reps": 1,
+            "qaoa_energy": 3911.2853983671007,
+            "quantum_choice": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "P(quantum_choice)": 0.0742,
+            "random_guess": 0.0625,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 9.688700083643198e-05,
+          "shed_kw": 850.0,
+          "revenue_lost_proxy": 513.4000000000001,
+          "fairness_adjusted_objective_cost": 588.4000000000001,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false,
+            "T5": false,
+            "T6": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 850.0,
+            "achievable_shed_kw": 850.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 513.4,
+            "adjusted_objective_cost": 588.4,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 3,
+              "T6": 2
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "selected_transformers": [
+              "T3",
+              "T4",
+              "T5",
+              "T6"
+            ],
+            "visited_search_nodes": 9,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.0016213980125030503,
+          "shed_kw": 850.0,
+          "revenue_lost_proxy": 513.4000000000001,
+          "fairness_adjusted_objective_cost": 588.4000000000001,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false,
+            "T5": false,
+            "T6": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 850.0,
+            "achievable_shed_kw": 850.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 850.0,
+            "revenue_lost": 513.4000000000001,
+            "historical_outage_counts": {
+              "T3": 0,
+              "T4": 0,
+              "T5": 3,
+              "T6": 2
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 4,
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "L1",
+      "tier": "Tier 3: scaled",
+      "description": "eight-node synthetic",
+      "transformer_count": 8,
+      "deficit_target_kw": 388.0,
+      "outage_counts": {
+        "T4": 1,
+        "T7": 2
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 90.0,
+          "recovery_ratio": 0.4,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 110.0,
+          "recovery_ratio": 0.6,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 130.0,
+          "recovery_ratio": 0.8,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 150.0,
+          "recovery_ratio": 0.3,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 170.0,
+          "recovery_ratio": 0.7,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 190.0,
+          "recovery_ratio": 0.5,
+          "is_critical": false
+        },
+        {
+          "id": "T7",
+          "load_kw": 210.0,
+          "recovery_ratio": 0.9,
+          "is_critical": false
+        },
+        {
+          "id": "T8",
+          "load_kw": 230.0,
+          "recovery_ratio": 0.35,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 175.5,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.5289018440089421,
+          "shed_kw": 420.0,
+          "revenue_lost_proxy": 175.5,
+          "fairness_adjusted_objective_cost": 175.5,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": true,
+            "T6": false,
+            "T7": true,
+            "T8": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 388.0,
+            "achievable_shed_kw": 420.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1190.0,
+            "revenue_lost": 175.5,
+            "historical_outage_counts": {
+              "T2": 0,
+              "T3": 0,
+              "T4": 1,
+              "T5": 0,
+              "T6": 0,
+              "T7": 2,
+              "T8": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 12,
+            "reps": 1,
+            "qaoa_energy": 1185.7891087665398,
+            "quantum_choice": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1
+            ],
+            "selected_shed_bits": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1
+            ],
+            "P(quantum_choice)": 0.0015,
+            "random_guess": 0.0078,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.0002115359966410324,
+          "shed_kw": 420.0,
+          "revenue_lost_proxy": 175.5,
+          "fairness_adjusted_objective_cost": 175.5,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": true,
+            "T6": false,
+            "T7": true,
+            "T8": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 388.0,
+            "achievable_shed_kw": 420.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1190.0,
+            "revenue_lost": 175.5,
+            "adjusted_objective_cost": 175.5,
+            "historical_outage_counts": {
+              "T2": 0,
+              "T3": 0,
+              "T4": 1,
+              "T5": 0,
+              "T6": 0,
+              "T7": 2,
+              "T8": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1
+            ],
+            "selected_transformers": [
+              "T6",
+              "T8"
+            ],
+            "visited_search_nodes": 125,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.01007553399540484,
+          "shed_kw": 420.0,
+          "revenue_lost_proxy": 175.5,
+          "fairness_adjusted_objective_cost": 175.5,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true,
+            "T5": true,
+            "T6": false,
+            "T7": true,
+            "T8": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 388.0,
+            "achievable_shed_kw": 420.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1190.0,
+            "revenue_lost": 175.5,
+            "historical_outage_counts": {
+              "T2": 0,
+              "T3": 0,
+              "T4": 1,
+              "T5": 0,
+              "T6": 0,
+              "T7": 2,
+              "T8": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 7,
+            "selected_shed_bits": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "L2",
+      "tier": "Tier 3: scaled",
+      "description": "nine-node synthetic",
+      "transformer_count": 9,
+      "deficit_target_kw": 500.0,
+      "outage_counts": {
+        "T2": 1,
+        "T6": 2
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 75.0,
+          "recovery_ratio": 0.55,
+          "is_critical": false
+        },
+        {
+          "id": "T2",
+          "load_kw": 95.0,
+          "recovery_ratio": 0.25,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 115.0,
+          "recovery_ratio": 0.82,
+          "is_critical": true
+        },
+        {
+          "id": "T4",
+          "load_kw": 135.0,
+          "recovery_ratio": 0.44,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 155.0,
+          "recovery_ratio": 0.67,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 175.0,
+          "recovery_ratio": 0.31,
+          "is_critical": false
+        },
+        {
+          "id": "T7",
+          "load_kw": 195.0,
+          "recovery_ratio": 0.91,
+          "is_critical": false
+        },
+        {
+          "id": "T8",
+          "load_kw": 215.0,
+          "recovery_ratio": 0.48,
+          "is_critical": false
+        },
+        {
+          "id": "T9",
+          "load_kw": 235.0,
+          "recovery_ratio": 0.72,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 242.6,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 1.3219476670055883,
+          "shed_kw": 520.0,
+          "revenue_lost_proxy": 227.6,
+          "fairness_adjusted_objective_cost": 242.6,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": false,
+            "T2": false,
+            "T3": true,
+            "T4": false,
+            "T5": true,
+            "T6": true,
+            "T7": true,
+            "T8": false,
+            "T9": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 500.0,
+            "achievable_shed_kw": 520.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1280.0,
+            "revenue_lost": 227.6,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 1,
+              "T4": 0,
+              "T5": 0,
+              "T6": 2,
+              "T7": 0,
+              "T8": 0,
+              "T9": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 14,
+            "reps": 1,
+            "qaoa_energy": 4758.038705228162,
+            "quantum_choice": [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "P(quantum_choice)": 0.002,
+            "random_guess": 0.0039,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00023222999880090356,
+          "shed_kw": 520.0,
+          "revenue_lost_proxy": 227.6,
+          "fairness_adjusted_objective_cost": 242.6,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": false,
+            "T2": false,
+            "T3": true,
+            "T4": false,
+            "T5": true,
+            "T6": true,
+            "T7": true,
+            "T8": false,
+            "T9": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 500.0,
+            "achievable_shed_kw": 520.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1280.0,
+            "revenue_lost": 227.6,
+            "adjusted_objective_cost": 242.6,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 1,
+              "T4": 0,
+              "T5": 0,
+              "T6": 2,
+              "T7": 0,
+              "T8": 0,
+              "T9": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "selected_transformers": [
+              "T1",
+              "T2",
+              "T4",
+              "T8"
+            ],
+            "visited_search_nodes": 255,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.012727371009532362,
+          "shed_kw": 520.0,
+          "revenue_lost_proxy": 227.6,
+          "fairness_adjusted_objective_cost": 242.6,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": false,
+            "T2": false,
+            "T3": true,
+            "T4": false,
+            "T5": true,
+            "T6": true,
+            "T7": true,
+            "T8": false,
+            "T9": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 500.0,
+            "achievable_shed_kw": 520.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1280.0,
+            "revenue_lost": 227.60000000000002,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 1,
+              "T4": 0,
+              "T5": 0,
+              "T6": 2,
+              "T7": 0,
+              "T8": 0,
+              "T9": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 8,
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "L3",
+      "tier": "Tier 3: scaled",
+      "description": "ten-node synthetic",
+      "transformer_count": 10,
+      "deficit_target_kw": 700.0,
+      "outage_counts": {},
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 80.0,
+          "recovery_ratio": 0.33,
+          "is_critical": false
+        },
+        {
+          "id": "T2",
+          "load_kw": 100.0,
+          "recovery_ratio": 0.7,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 120.0,
+          "recovery_ratio": 0.52,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 140.0,
+          "recovery_ratio": 0.88,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 160.0,
+          "recovery_ratio": 0.4,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 180.0,
+          "recovery_ratio": 0.62,
+          "is_critical": false
+        },
+        {
+          "id": "T7",
+          "load_kw": 200.0,
+          "recovery_ratio": 0.29,
+          "is_critical": false
+        },
+        {
+          "id": "T8",
+          "load_kw": 220.0,
+          "recovery_ratio": 0.95,
+          "is_critical": true
+        },
+        {
+          "id": "T9",
+          "load_kw": 240.0,
+          "recovery_ratio": 0.47,
+          "is_critical": false
+        },
+        {
+          "id": "T10",
+          "load_kw": 260.0,
+          "recovery_ratio": 0.76,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 297.2,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.8239387859939598,
+          "shed_kw": 720.0,
+          "revenue_lost_proxy": 297.2,
+          "fairness_adjusted_objective_cost": 297.2,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": true,
+            "T5": false,
+            "T6": true,
+            "T7": false,
+            "T8": true,
+            "T9": false,
+            "T10": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 700.0,
+            "achievable_shed_kw": 720.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1480.0,
+            "revenue_lost": 297.2,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 0,
+              "T3": 0,
+              "T4": 0,
+              "T5": 0,
+              "T6": 0,
+              "T7": 0,
+              "T9": 0,
+              "T10": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 13,
+            "reps": 1,
+            "qaoa_energy": 359.2301613843208,
+            "quantum_choice": [
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              1,
+              0
+            ],
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              1,
+              0
+            ],
+            "P(quantum_choice)": 0.0005,
+            "random_guess": 0.002,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.0004009179974673316,
+          "shed_kw": 720.0,
+          "revenue_lost_proxy": 297.2,
+          "fairness_adjusted_objective_cost": 297.2,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T10": true,
+            "T2": true,
+            "T3": false,
+            "T4": true,
+            "T5": false,
+            "T6": true,
+            "T7": false,
+            "T8": true,
+            "T9": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 700.0,
+            "achievable_shed_kw": 720.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1480.0,
+            "revenue_lost": 297.2,
+            "adjusted_objective_cost": 297.2,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T10": 0,
+              "T2": 0,
+              "T3": 0,
+              "T4": 0,
+              "T5": 0,
+              "T6": 0,
+              "T7": 0,
+              "T9": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              1
+            ],
+            "selected_transformers": [
+              "T3",
+              "T5",
+              "T7",
+              "T9"
+            ],
+            "visited_search_nodes": 449,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.01036353899689857,
+          "shed_kw": 720.0,
+          "revenue_lost_proxy": 297.2,
+          "fairness_adjusted_objective_cost": 297.2,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": true,
+            "T5": false,
+            "T6": true,
+            "T7": false,
+            "T8": true,
+            "T9": false,
+            "T10": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 700.0,
+            "achievable_shed_kw": 720.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1480.0,
+            "revenue_lost": 297.2,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 0,
+              "T3": 0,
+              "T4": 0,
+              "T5": 0,
+              "T6": 0,
+              "T7": 0,
+              "T9": 0,
+              "T10": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 9,
+            "selected_shed_bits": [
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              1,
+              0
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "L4",
+      "tier": "Tier 3: scaled",
+      "description": "ten-node rural mix",
+      "transformer_count": 10,
+      "deficit_target_kw": 900.0,
+      "outage_counts": {
+        "T1": 2,
+        "T8": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 65.0,
+          "recovery_ratio": 0.2,
+          "is_critical": false
+        },
+        {
+          "id": "T2",
+          "load_kw": 85.0,
+          "recovery_ratio": 0.45,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 105.0,
+          "recovery_ratio": 0.72,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 125.0,
+          "recovery_ratio": 0.91,
+          "is_critical": true
+        },
+        {
+          "id": "T5",
+          "load_kw": 145.0,
+          "recovery_ratio": 0.34,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 165.0,
+          "recovery_ratio": 0.58,
+          "is_critical": false
+        },
+        {
+          "id": "T7",
+          "load_kw": 185.0,
+          "recovery_ratio": 0.83,
+          "is_critical": false
+        },
+        {
+          "id": "T8",
+          "load_kw": 205.0,
+          "recovery_ratio": 0.27,
+          "is_critical": false
+        },
+        {
+          "id": "T9",
+          "load_kw": 225.0,
+          "recovery_ratio": 0.66,
+          "is_critical": false
+        },
+        {
+          "id": "T10",
+          "load_kw": 245.0,
+          "recovery_ratio": 0.49,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 416.65,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 2.805220398004167,
+          "shed_kw": 910.0,
+          "revenue_lost_proxy": 371.65,
+          "fairness_adjusted_objective_cost": 416.65,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": false,
+            "T2": false,
+            "T3": true,
+            "T4": true,
+            "T5": false,
+            "T6": false,
+            "T7": true,
+            "T8": false,
+            "T9": true,
+            "T10": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 900.0,
+            "achievable_shed_kw": 910.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1425.0,
+            "revenue_lost": 371.65,
+            "historical_outage_counts": {
+              "T1": 2,
+              "T2": 0,
+              "T3": 0,
+              "T5": 0,
+              "T6": 0,
+              "T7": 0,
+              "T8": 1,
+              "T9": 0,
+              "T10": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 15,
+            "reps": 1,
+            "qaoa_energy": 11542.719715542156,
+            "quantum_choice": [
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0,
+              1
+            ],
+            "selected_shed_bits": [
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0,
+              1
+            ],
+            "P(quantum_choice)": 0.001,
+            "random_guess": 0.002,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00035963699338026345,
+          "shed_kw": 910.0,
+          "revenue_lost_proxy": 371.65,
+          "fairness_adjusted_objective_cost": 416.65,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": false,
+            "T10": false,
+            "T2": false,
+            "T3": true,
+            "T4": true,
+            "T5": false,
+            "T6": false,
+            "T7": true,
+            "T8": false,
+            "T9": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 900.0,
+            "achievable_shed_kw": 910.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1425.0,
+            "revenue_lost": 371.65,
+            "adjusted_objective_cost": 416.65,
+            "historical_outage_counts": {
+              "T1": 2,
+              "T10": 0,
+              "T2": 0,
+              "T3": 0,
+              "T5": 0,
+              "T6": 0,
+              "T7": 0,
+              "T8": 1,
+              "T9": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0
+            ],
+            "selected_transformers": [
+              "T1",
+              "T10",
+              "T2",
+              "T5",
+              "T6",
+              "T8"
+            ],
+            "visited_search_nodes": 415,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.011432377999881282,
+          "shed_kw": 910.0,
+          "revenue_lost_proxy": 371.65,
+          "fairness_adjusted_objective_cost": 416.65,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": false,
+            "T2": false,
+            "T3": true,
+            "T4": true,
+            "T5": false,
+            "T6": false,
+            "T7": true,
+            "T8": false,
+            "T9": true,
+            "T10": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 900.0,
+            "achievable_shed_kw": 910.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1425.0,
+            "revenue_lost": 371.65,
+            "historical_outage_counts": {
+              "T1": 2,
+              "T2": 0,
+              "T3": 0,
+              "T5": 0,
+              "T6": 0,
+              "T7": 0,
+              "T8": 1,
+              "T9": 0,
+              "T10": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 9,
+            "selected_shed_bits": [
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0,
+              1
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "E1",
+      "tier": "Edge case",
+      "description": "zero deficit",
+      "transformer_count": 4,
+      "deficit_target_kw": 0.0,
+      "outage_counts": {
+        "T2": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 80.0,
+          "recovery_ratio": 0.5,
+          "is_critical": false
+        },
+        {
+          "id": "T2",
+          "load_kw": 100.0,
+          "recovery_ratio": 0.6,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 120.0,
+          "recovery_ratio": 0.7,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 140.0,
+          "recovery_ratio": 0.8,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 0.0,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.00011799200729001313,
+          "shed_kw": 0,
+          "revenue_lost_proxy": 0,
+          "fairness_adjusted_objective_cost": 0.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 0.0,
+            "achievable_shed_kw": 0.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 440.0,
+            "solver_status": "No discretionary shedding required (Pure Quantum)"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 6.057100836187601e-05,
+          "shed_kw": 0,
+          "revenue_lost_proxy": 0,
+          "fairness_adjusted_objective_cost": 0.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": true,
+            "T4": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 0.0,
+            "achievable_shed_kw": 0.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 440.0,
+            "revenue_lost": 0.0,
+            "solver_status": "Exact: no discretionary shedding required"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 1.9821003661490977e-05,
+          "shed_kw": 440.0,
+          "revenue_lost_proxy": 296.0,
+          "fairness_adjusted_objective_cost": 311.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": null,
+          "states": {
+            "T1": false,
+            "T2": false,
+            "T3": false,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 0.0,
+            "achievable_shed_kw": 0.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 440.0,
+            "revenue_lost": 0.0,
+            "solver_status": "No discretionary shedding required (Classical Optimal)"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "E2",
+      "tier": "Edge case",
+      "description": "target exceeds discretionary capacity",
+      "transformer_count": 4,
+      "deficit_target_kw": 500.0,
+      "outage_counts": {
+        "T3": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 180.0,
+          "recovery_ratio": 0.98,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 120.0,
+          "recovery_ratio": 0.95,
+          "is_critical": true
+        },
+        {
+          "id": "T3",
+          "load_kw": 250.0,
+          "recovery_ratio": 0.86,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 160.0,
+          "recovery_ratio": 0.92,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 377.20000000000005,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.08922608901048079,
+          "shed_kw": 410.0,
+          "revenue_lost_proxy": 362.20000000000005,
+          "fairness_adjusted_objective_cost": 377.20000000000005,
+          "critical_infrastructure_protected": true,
+          "feasible": false,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 500.0,
+            "achievable_shed_kw": 410.0,
+            "requested_deficit_met": false,
+            "maximum_safe_shed_kw": 410.0,
+            "revenue_lost": 362.20000000000005,
+            "historical_outage_counts": {
+              "T3": 1,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 2,
+            "reps": 1,
+            "qaoa_energy": 867.3964766966157,
+            "quantum_choice": [
+              1,
+              1
+            ],
+            "selected_shed_bits": [
+              1,
+              1
+            ],
+            "P(quantum_choice)": 0.2881,
+            "random_guess": 0.25,
+            "solver_status": "Critical protection applied; requested deficit infeasible",
+            "note": "Requested deficit exceeds discretionary load; critical transformers remain ON"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 8.094499935396016e-05,
+          "shed_kw": 410.0,
+          "revenue_lost_proxy": 362.20000000000005,
+          "fairness_adjusted_objective_cost": 377.20000000000005,
+          "critical_infrastructure_protected": true,
+          "feasible": false,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 500.0,
+            "achievable_shed_kw": 410.0,
+            "requested_deficit_met": false,
+            "maximum_safe_shed_kw": 410.0,
+            "revenue_lost": 362.2,
+            "adjusted_objective_cost": 377.2,
+            "historical_outage_counts": {
+              "T3": 1,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              1,
+              1
+            ],
+            "selected_transformers": [
+              "T3",
+              "T4"
+            ],
+            "visited_search_nodes": 5,
+            "solver_status": "Critical protection applied; requested deficit infeasible",
+            "note": "Requested deficit exceeds discretionary load; critical transformers remain ON"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.0015530579985352233,
+          "shed_kw": 410.0,
+          "revenue_lost_proxy": 362.20000000000005,
+          "fairness_adjusted_objective_cost": 377.20000000000005,
+          "critical_infrastructure_protected": true,
+          "feasible": false,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false
+          },
+          "solver_info": {
+            "requested_shed_kw": 500.0,
+            "achievable_shed_kw": 410.0,
+            "requested_deficit_met": false,
+            "maximum_safe_shed_kw": 410.0,
+            "revenue_lost": 362.20000000000005,
+            "historical_outage_counts": {
+              "T3": 1,
+              "T4": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 2,
+            "selected_shed_bits": [
+              1,
+              1
+            ],
+            "solver_status": "Critical protection applied; requested deficit infeasible",
+            "note": "Requested deficit exceeds discretionary load; critical transformers remain ON"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "F1",
+      "tier": "Supplemental fairness",
+      "description": "repeat-outage rotation sample",
+      "transformer_count": 6,
+      "deficit_target_kw": 300.0,
+      "outage_counts": {
+        "T2": 4,
+        "T3": 2,
+        "T4": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 100.0,
+          "recovery_ratio": 0.3,
+          "is_critical": true
+        },
+        {
+          "id": "T2",
+          "load_kw": 130.0,
+          "recovery_ratio": 0.4,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 160.0,
+          "recovery_ratio": 0.5,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 190.0,
+          "recovery_ratio": 0.6,
+          "is_critical": false
+        },
+        {
+          "id": "T5",
+          "load_kw": 220.0,
+          "recovery_ratio": 0.7,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 250.0,
+          "recovery_ratio": 0.8,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 239.0,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.39152228500461206,
+          "shed_kw": 350.0,
+          "revenue_lost_proxy": 194.0,
+          "fairness_adjusted_objective_cost": 239.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false,
+            "T5": true,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 300.0,
+            "achievable_shed_kw": 350.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 950.0,
+            "revenue_lost": 194.0,
+            "historical_outage_counts": {
+              "T2": 4,
+              "T3": 2,
+              "T4": 1,
+              "T5": 0,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 10,
+            "reps": 1,
+            "qaoa_energy": 1029.748346126678,
+            "quantum_choice": [
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "selected_shed_bits": [
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "P(quantum_choice)": 0.0054,
+            "random_guess": 0.0312,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.0001359489979222417,
+          "shed_kw": 350.0,
+          "revenue_lost_proxy": 194.0,
+          "fairness_adjusted_objective_cost": 239.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false,
+            "T5": true,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 300.0,
+            "achievable_shed_kw": 350.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 950.0,
+            "revenue_lost": 194.0,
+            "adjusted_objective_cost": 239.0,
+            "historical_outage_counts": {
+              "T2": 4,
+              "T3": 2,
+              "T4": 1,
+              "T5": 0,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "selected_transformers": [
+              "T3",
+              "T4"
+            ],
+            "visited_search_nodes": 49,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.012974391007446684,
+          "shed_kw": 350.0,
+          "revenue_lost_proxy": 194.0,
+          "fairness_adjusted_objective_cost": 239.0,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": true,
+            "T3": false,
+            "T4": false,
+            "T5": true,
+            "T6": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 300.0,
+            "achievable_shed_kw": 350.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 950.0,
+            "revenue_lost": 194.0,
+            "historical_outage_counts": {
+              "T2": 4,
+              "T3": 2,
+              "T4": 1,
+              "T5": 0,
+              "T6": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 5,
+            "selected_shed_bits": [
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    },
+    {
+      "case_id": "F2",
+      "tier": "Supplemental fairness",
+      "description": "larger fairness history",
+      "transformer_count": 8,
+      "deficit_target_kw": 420.0,
+      "outage_counts": {
+        "T2": 2,
+        "T5": 3,
+        "T7": 1
+      },
+      "transformers": [
+        {
+          "id": "T1",
+          "load_kw": 90.0,
+          "recovery_ratio": 0.75,
+          "is_critical": false
+        },
+        {
+          "id": "T2",
+          "load_kw": 110.0,
+          "recovery_ratio": 0.32,
+          "is_critical": false
+        },
+        {
+          "id": "T3",
+          "load_kw": 130.0,
+          "recovery_ratio": 0.58,
+          "is_critical": false
+        },
+        {
+          "id": "T4",
+          "load_kw": 150.0,
+          "recovery_ratio": 0.91,
+          "is_critical": true
+        },
+        {
+          "id": "T5",
+          "load_kw": 170.0,
+          "recovery_ratio": 0.43,
+          "is_critical": false
+        },
+        {
+          "id": "T6",
+          "load_kw": 190.0,
+          "recovery_ratio": 0.68,
+          "is_critical": false
+        },
+        {
+          "id": "T7",
+          "load_kw": 210.0,
+          "recovery_ratio": 0.25,
+          "is_critical": false
+        },
+        {
+          "id": "T8",
+          "load_kw": 230.0,
+          "recovery_ratio": 0.82,
+          "is_critical": false
+        }
+      ],
+      "exact_reference_objective_cost": 208.1,
+      "results": {
+        "QAOA": {
+          "algorithm": "QAOA",
+          "runtime_seconds": 0.5706581440026639,
+          "shed_kw": 450.0,
+          "revenue_lost_proxy": 163.1,
+          "fairness_adjusted_objective_cost": 208.1,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": false,
+            "T3": false,
+            "T4": true,
+            "T5": true,
+            "T6": true,
+            "T7": false,
+            "T8": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 420.0,
+            "achievable_shed_kw": 450.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1130.0,
+            "revenue_lost": 163.1,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 2,
+              "T3": 0,
+              "T5": 3,
+              "T6": 0,
+              "T7": 1,
+              "T8": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "qubits": 12,
+            "reps": 1,
+            "qaoa_energy": 924.619882298427,
+            "quantum_choice": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0
+            ],
+            "selected_shed_bits": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0
+            ],
+            "P(quantum_choice)": 0.0029,
+            "random_guess": 0.0078,
+            "solver_status": "QAOA sampled feasible schedule"
+          },
+          "error": null
+        },
+        "Exact": {
+          "algorithm": "Exact",
+          "runtime_seconds": 0.00021157700393814594,
+          "shed_kw": 450.0,
+          "revenue_lost_proxy": 163.1,
+          "fairness_adjusted_objective_cost": 208.1,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": false,
+            "T3": false,
+            "T4": true,
+            "T5": true,
+            "T6": true,
+            "T7": false,
+            "T8": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 420.0,
+            "achievable_shed_kw": 450.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1130.0,
+            "revenue_lost": 163.1,
+            "adjusted_objective_cost": 208.1,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 2,
+              "T3": 0,
+              "T5": 3,
+              "T6": 0,
+              "T7": 1,
+              "T8": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "selected_shed_bits": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0
+            ],
+            "selected_transformers": [
+              "T2",
+              "T3",
+              "T7"
+            ],
+            "visited_search_nodes": 163,
+            "solver_status": "Exact global optimum (Decimal branch and bound)"
+          },
+          "error": null
+        },
+        "Classical MILP": {
+          "algorithm": "Classical MILP",
+          "runtime_seconds": 0.010309652003343217,
+          "shed_kw": 450.0,
+          "revenue_lost_proxy": 163.1,
+          "fairness_adjusted_objective_cost": 208.1,
+          "critical_infrastructure_protected": true,
+          "feasible": true,
+          "optimality_gap_percent": 0.0,
+          "states": {
+            "T1": true,
+            "T2": false,
+            "T3": false,
+            "T4": true,
+            "T5": true,
+            "T6": true,
+            "T7": false,
+            "T8": true
+          },
+          "solver_info": {
+            "requested_shed_kw": 420.0,
+            "achievable_shed_kw": 450.0,
+            "requested_deficit_met": true,
+            "maximum_safe_shed_kw": 1130.0,
+            "revenue_lost": 163.1,
+            "historical_outage_counts": {
+              "T1": 0,
+              "T2": 2,
+              "T3": 0,
+              "T5": 3,
+              "T6": 0,
+              "T7": 1,
+              "T8": 0
+            },
+            "fairness_penalty_per_prior_outage": 15.0,
+            "variables": 7,
+            "selected_shed_bits": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0
+            ],
+            "solver_status": "Classical MILP Optimal Convergence"
+          },
+          "error": null
+        }
+      }
+    }
+  ]
+}

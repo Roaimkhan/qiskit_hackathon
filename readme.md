@@ -1,69 +1,132 @@
-To win a quantum challenge—especially with Pakistan’s nationwide rollout of DISCO transformer smart meters (APMS) actively in the headlines—your demo shouldn't just spit out a terminal bitstring like `[1, 0, 1, 1, 0]`. Judges want to see **why classical rules fail** and **how quantum optimization saves the day** on a realistic, high-stakes grid topology.
+# Quantum Feeder Load-Shedding Dashboard
 
-The best demo scenario is **"The Peak-Summer Heatwave Squeeze"** on an **11kV Mixed Urban Feeder** (modeled after an IESCO or LESCO feeder).
+A full-stack prototype for visualizing a distribution feeder and comparing three load-shedding strategies: QAOA, exact branch-and-bound, and classical mixed-integer linear programming (MILP). The dashboard sends a requested shedding amount to a FastAPI service and displays the returned transformer ON/OFF schedule.
 
----
+> This is a research and demonstration project. It is not connected to a live electrical grid and is not suitable for controlling physical infrastructure.
 
-### 1. The Scenario Setup: "The 2:00 PM Heatwave Crisis"
+## Features
 
-Set the stage with an interactive dashboard (React/Next.js or Streamlit + FastAPI) simulating a real-time APMS telemetry feed during a severe July heatwave:
+- Feeder topology display with nested lateral traversal and transformer status cards.
+- Load-shedding control panel and a simulated feeder kill switch.
+- Separate dispatch tabs for QAOA, exact, and classical MILP solvers.
+- Critical transformer protection in the solver inputs.
+- QAOA implemented with Qiskit primitives, COBYLA parameter optimization, and statevector sampling.
+- An 18-case benchmark that prints a comparison table and saves detailed results as JSON.
 
-* **Feeder Capacity Ceiling:** Normally 1,200 kW, but due to extreme ambient heat and grid generation shortfall, dispatch control drops the feeder's safe thermal limit to **750 kW**.
-* **Total Live Demand:** **1,150 kW** across **8 distinct distribution transformers (DTs)** (8 qubits—small enough to simulate cleanly and fast in Qiskit, large enough to create $2^8 = 256$ combinations with non-trivial trade-offs).
-* **The Twist (Coupled Sub-Branches):** Two transformers ($T_3$ and $T_4$) share an aging underground lateral cable. Even if the main feeder has headroom, running *both* simultaneously risks blowing the lateral junction.
+## Architecture
 
----
+```mermaid
+flowchart LR
+    UI[React + Vite dashboard] -->|GET topology / POST dispatch| API[FastAPI]
+    API --> Q[QAOA: QUBO + COBYLA]
+    Q --> QK[Qiskit Estimator + Sampler]
+    API --> E[Exact: Decimal branch-and-bound]
+    API --> C[Classical: SciPy MILP]
+    QK --> R[ON/OFF states + solver info]
+    E --> R
+    C --> R
+    R --> API --> UI
+    B[Benchmark script] --> Q
+    B --> E
+    B --> C
+    B --> J[Terminal report + JSON results]
+```
 
-### 2. The 8-Transformer Roster (Designed to Break Greedy Algorithms)
+The API exposes `GET /get_topology` and three dispatch routes:
 
-| ID | Node Type | Load (kW) | Bill Recovery | Priority / Constraint |
-| --- | --- | --- | --- | --- |
-| **T1** | **District Hospital (ER & ICU)** | 180 kW | 99% | **HARD CRITICAL** ($x_1 = 1$) |
-| **T2** | **Municipal Water Tube-well** | 90 kW | 95% | **HARD CRITICAL** ($x_2 = 1$) |
-| **T3** | **Model Town Residential (Block A)** | 160 kW | 94% | Honest payers (Shares lateral with T4) |
-| **T4** | **Commercial Plaza & Cold Storage** | 210 kW | 88% | High revenue, high load (Shares lateral with T3) |
-| **T5** | **Middle-Class Housing Society** | 140 kW | 85% | Honest payers |
-| **T6** | **Bazaar / Mixed Retail Strip** | 130 kW | 42% | Moderate line losses / hookups (*kunda*) |
-| **T7** | **Industrial Workshop Cluster** | 150 kW | 28% | Severe theft / chronically defaulted |
-| **T8** | **High-Loss Informal Settlement** | 90 kW | 15% | Severe theft / chronically defaulted |
+| Algorithm | Endpoint | Implementation |
+|---|---|---|
+| Quantum | `POST /api/optimize-dispatch` | QUBO/Ising formulation, Qiskit `StatevectorEstimator` and `StatevectorSampler`, COBYLA |
+| Exact | `POST /api/exact-dispatch` | Deterministic Decimal-based branch-and-bound |
+| Classical | `POST /api/classical-dispatch` | SciPy MILP |
 
-* **Mandatory Critical Load ($T_1 + T_2$):** $180 + 90 = \mathbf{270\text{ kW}}$ locked ON.
-* **Remaining Budget for $T_3 \dots T_8$:** $750 - 270 = \mathbf{480\text{ kW}}$ (out of 880 kW requested).
+All dispatch routes accept `feeder_id`, `load_shedding_kw`, and a list of transformers (`id`, `load_kw`, `recovery_ratio`, `is_critical`). They return `transformer_states` and `optimization_info`. The API does not keep outage history between requests. The kill switch is a frontend simulation; it does not call an API route or operate equipment.
 
----
+## Project layout
 
-### 3. The Live Side-by-Side Showdown (What You Show the Judges)
+```text
+.
+├── endpoints.py                  # FastAPI routes and request/response models
+├── main.py                       # Example nested feeder topology
+├── quantum_solver.py             # QAOA-based dispatch
+├── exact_algorithm.py            # Exact Decimal branch-and-bound solver
+├── classical_solver.py           # SciPy MILP solver
+├── benchmark_three_algorithms.py # 18-case benchmark runner
+├── PROJECT_REPORT.md             # Benchmark results and limitations
+├── requirements.txt              # Backend Python dependencies
+└── QUANTAGRID/                   # React + Vite frontend
+```
 
-Your demo UI should let the judge click a **"Trigger 400 kW Deficit"** button and compare **three dispatch engines side-by-side** in real time:
+## Requirements
 
-#### Tab 1: Legacy DISCO Policy (Coarse Feeder Shedding)
+- Python 3.10 or newer
+- Node.js and npm
+- Qiskit, FastAPI, Uvicorn, NumPy, and SciPy
 
-* **Action:** Trips the entire 11kV breaker for 4 hours.
-* **Result:** **0 kW delivered.** Hospital switches to expensive diesel, honest citizens in $T_3$ and $T_5$ suffer collective punishment, and DISCO loses 100% of hourly revenue.
+## Run locally
 
-#### Tab 2: Naive Classical Greedy Heuristic
+### 1. Set up the backend
 
-* **Logic:** Sorts discretionary transformers by highest bill recovery ($T_3 \rightarrow T_4 \rightarrow T_5$) and turns them ON until hitting the 480 kW budget.
-* **Action:** Turns ON $T_3$ (160 kW) + $T_4$ (210 kW) = 370 kW. Next is $T_5$ (140 kW), which pushes load to 510 kW (over limit), so it skips $T_5$ and turns ON $T_8$ (90 kW, 15% recovery!) just to fill remaining capacity.
-* **The Catastrophe:** Because $T_3$ and $T_4$ are both ON, **the shared underground lateral cable overheats and trips**, knocking out both honest neighborhoods anyway—while rewarding a 15% recovery zone ($T_8$) with power!
+From the project root:
 
-#### Tab 3: Your Qiskit QAOA Surgical Optimizer
+```bash
+python -m venv venv
+source venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt scipy
+```
 
-* **Logic:** Evaluates the QUBO energy landscape—balancing recovery-weighted revenue, capacity penalties, and the quadratic lateral-cable interaction penalty ($+\lambda x_3 x_4$).
-* **Action:** Realizes running $T_3$ and $T_4$ together incurs a massive thermal penalty. Instead, it turns ON **$T_4$ (210 kW) + $T_5$ (140 kW) + $T_6$ (130 kW) = 480 kW** (or **$T_3 + T_5 + T_6 = 430\text{ kW}$** depending on your weight tuning).
-* **Result:**
-* **100% Critical Safety:** Hospital and water pump untouched.
-* **Zero Thermal Trips:** Lateral cable stays safe.
-* **Maximum Revenue & Fairness:** Isolates the worst defaulters ($T_7, T_8$) while keeping honest payers energized.
+Start the API:
 
+```bash
+uvicorn endpoints:app --reload --host 127.0.0.1 --port 8000
+```
 
+The topology is available at [http://127.0.0.1:8000/get_topology](http://127.0.0.1:8000/get_topology). Interactive API documentation is at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
----
+### 2. Set up the frontend
 
-### 4. Bonus "Judge-Pleaser" Interactive Controls
+In another terminal:
 
-Add two live sliders on the left panel so judges can stress-test your QUBO live during Q&A:
+```bash
+cd QUANTAGRID
+npm ci
+npm run dev
+```
 
-1. **Feeder Capacity Slider (`500 kW` to `1,150 kW`):** Dragging it down watches QAOA dynamically shed the next-lowest recovery transformer in real time.
-2. **"Social Fairness vs. Pure Revenue" Weight Slider:** Shows how tuning the linear coefficients shifts priority between high-load commercial payers ($T_4$) and smaller residential neighborhoods ($T_3, T_5$).
-3. **Quantum Diagnostics Drawer:** Display the actual Qiskit `QAOAAnsatz` circuit diagram and the **measurement probability histogram** (showing the optimal bitstring spiking as the tallest bar out of all 256 quantum states).
+Open the local URL printed by Vite (usually [http://localhost:5173](http://localhost:5173)). Vite proxies `/get_topology` and `/api` requests to the backend on port 8000.
+
+## Run the benchmark
+
+With the project Python environment active, run:
+
+```bash
+python benchmark_three_algorithms.py
+```
+
+The script runs 18 deterministic test configurations across small, standard, scaled, edge, and supplemental fairness cases. It prints a case-by-case Markdown table and aggregate summary, then writes `three_algorithm_evaluation_results.json` in the current directory. To customize its output path or QAOA budget:
+
+```bash
+python benchmark_three_algorithms.py \
+  --output results/three_algorithm_evaluation_results.json \
+  --qaoa-maxiter 60 \
+  --qaoa-shots 2048 \
+  --seed 7
+```
+
+The benchmark reports runtime, achieved shed load, a revenue-loss proxy, fairness-adjusted objective cost, gap against the exact result, and feasibility. The reported revenue-loss proxy is `load_kw × recovery_ratio`; it is not a dollar amount because the project has no tariff model.
+
+## Notes on solver behavior
+
+- Critical transformers are marked with `is_critical: true` and are kept ON by the solvers.
+- The target is a minimum shed amount. A discrete transformer schedule can shed more than the target.
+- If the target exceeds discretionary load, the solver can shed all discretionary load but cannot satisfy the requested target while protecting critical nodes.
+- QAOA uses a fixed default random seed for repeatable local runs, but it is a sampling-based approximate method. Its output can depend on the QAOA settings and sampled candidates.
+- Exact branch-and-bound is the deterministic reference for the included small benchmark instances.
+- The benchmark uses Qiskit statevector primitives, which simulate quantum circuits on a classical computer. The current results do not demonstrate a quantum speedup or quantum hardware performance.
+- The benchmark has identified a zero-deficit state initialization issue in `classical_solver.py`; see [PROJECT_REPORT.md](PROJECT_REPORT.md) before interpreting that edge-case result.
+
+## Further reading
+
+- [Project benchmark report](PROJECT_REPORT.md)
+- [Detailed benchmark results](three_algorithm_evaluation_results.json)
