@@ -9,6 +9,12 @@ function getNodeLabel(node) {
   return node.customer_type || node.name || node.id
 }
 
+function getTransformers(node) {
+  if (!node) return []
+  if (node.node_type === 'transformer') return [node]
+  return (node.children || []).flatMap(getTransformers)
+}
+
 function buildVerticalTopology(root) {
   const allNodes = []
   const rootX = 760
@@ -116,12 +122,20 @@ function buildConnectionPath(from, to) {
 function App() {
   const [topology, setTopology] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadShedding, setLoadShedding] = useState(null)
+  const [transformerStates, setTransformerStates] = useState({})
+  const [dispatching, setDispatching] = useState(false)
+  const [dispatchMessage, setDispatchMessage] = useState('')
+  const [dispatchMetrics, setDispatchMetrics] = useState(null)
 
   useEffect(() => {
-    fetch('http://localhost:8000/get_topology')
+    fetch('/get_topology')
       .then((response) => response.json())
       .then((data) => {
         setTopology(data)
+        setLoadShedding(0)
+        setTransformerStates(Object.fromEntries(getTransformers(data).map((transformer) => [transformer.id, true])))
+        setDispatchMetrics(null)
         setLoading(false)
       })
       .catch(() => {
@@ -133,6 +147,66 @@ function App() {
     if (!topology) return { nodes: [], edges: [], width: 1600, height: 1200 }
     return buildVerticalTopology(topology)
   }, [topology])
+
+  const transformers = useMemo(() => getTransformers(topology), [topology])
+  const currentTotalLoad = transformers.reduce((total, transformer) => total + Number(transformer.load?.value || 0), 0)
+  const criticalLoad = transformers
+    .filter((transformer) => transformer.constraint?.type === 'hard')
+    .reduce((total, transformer) => total + Number(transformer.load?.value || 0), 0)
+  const maximumSafeShedding = Math.max(0, currentTotalLoad - criticalLoad)
+  async function executeDispatch() {
+    setDispatching(true)
+    setDispatchMessage('')
+    try {
+      const response = await fetch('/api/optimize-dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          feeder_id: topology.id,
+          load_shedding_kw: loadShedding,
+          transformers: transformers.map((transformer) => ({
+            id: transformer.id,
+            load_kw: Number(transformer.load?.value || 0),
+            recovery_ratio: Number(transformer.bill_recovery?.value || 0) / 100,
+            is_critical: transformer.constraint?.type === 'hard',
+          })),
+        }),
+      })
+      if (!response.ok) throw new Error(`Dispatch failed (${response.status})`)
+      const result = await response.json()
+      if (!result.success || !result.transformer_states) {
+        throw new Error('Dispatch response did not include transformer states.')
+      }
+      const nextStates = Object.fromEntries(
+        Object.entries(result.transformer_states).map(([id, isOn]) => [id, Boolean(isOn)]),
+      )
+      setTransformerStates(nextStates)
+      const activeTransformers = transformers.filter((transformer) => nextStates[transformer.id])
+      const postDispatchLoad = activeTransformers.reduce((total, transformer) => total + Number(transformer.load?.value || 0), 0)
+      const recoveryWeightedLoad = activeTransformers.reduce(
+        (total, transformer) => total + Number(transformer.load?.value || 0) * Number(transformer.bill_recovery?.value || 0),
+        0,
+      )
+      const criticalTransformers = transformers.filter((transformer) => transformer.constraint?.type === 'hard')
+      const protectedCriticalCount = criticalTransformers.filter((transformer) => nextStates[transformer.id]).length
+      const criticalProtection = criticalTransformers.length
+        ? Math.round((protectedCriticalCount / criticalTransformers.length) * 100)
+        : 100
+      setDispatchMetrics({
+        activeLoad: postDispatchLoad,
+        targetLoad: Math.max(0, currentTotalLoad - loadShedding),
+        targetMet: postDispatchLoad <= Math.max(0, currentTotalLoad - loadShedding) + 0.01,
+        revenueRecovery: postDispatchLoad ? recoveryWeightedLoad / postDispatchLoad : 0,
+        criticalProtection,
+        solverStatus: result.optimization_info?.solver_status || 'QAOA completed',
+      })
+      setDispatchMessage('Dispatch completed.')
+    } catch (error) {
+      setDispatchMessage(error.message || 'Dispatch failed.')
+    } finally {
+      setDispatching(false)
+    }
+  }
 
   if (loading) {
     return <div className="app-shell">Loading feeder topology...</div>
@@ -151,6 +225,7 @@ function App() {
         </div>
       </div>
 
+      <div className="dashboard-layout">
       <div className="topology-panel">
         <svg
           viewBox={`0 0 ${topologyData.width} ${topologyData.height}`}
@@ -185,9 +260,9 @@ function App() {
             return (
               <g key={node.id} transform={`translate(${node.x}, ${node.y})`}>
                 <foreignObject x="0" y="0" width={NODE_WIDTH} height={NODE_HEIGHT + 220}>
-                  <div className={`node-card ${kindClass}`}>
+                  <div className={`node-card ${kindClass} ${node.node_type === 'transformer' ? (transformerStates[node.id] ? 'transformer-on' : 'transformer-off') : ''}`}>
                     <div className="node-header">
-                      <span className="node-icon-wrap" aria-label="transformer icon">
+                      <span className={`node-icon-wrap ${node.node_type === 'transformer' ? (transformerStates[node.id] ? 'indicator-on' : 'indicator-off') : ''}`} aria-label={node.node_type === 'transformer' ? (transformerStates[node.id] ? 'Transformer ON' : 'Transformer OFF') : 'Network node'}>
                         <svg viewBox="0 0 24 24" className="node-icon" role="img" aria-hidden="true">
                           <path d="M4 7.5a2.5 2.5 0 0 1 2.5-2.5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Zm3.5 0v9m9-9v9M8 10h8M8 14h8" />
                           <path d="M12 3v2m0 16v2M3 12h2m14 0h2" opacity="0.18" />
@@ -200,6 +275,11 @@ function App() {
                       </div>
 
                       <div className="node-load">{loadText}</div>
+                      {node.node_type === 'transformer' && (
+                        <span className={`transformer-state ${transformerStates[node.id] ? 'state-on' : 'state-off'}`}>
+                          {transformerStates[node.id] ? 'ON' : 'OFF'}
+                        </span>
+                      )}
                     </div>
 
                     <div className="node-details">
@@ -242,6 +322,69 @@ function App() {
             )
           })}
         </svg>
+      </div>
+      <aside className="control-panel" aria-label="Feeder control and stress test">
+        <p className="eyebrow">Feeder controls</p>
+        <h2>Control &amp; Stress-Test</h2>
+
+        <div className="load-metric">
+          <span>Total feeder load</span>
+          <strong>{currentTotalLoad.toLocaleString()} <small>kW</small></strong>
+        </div>
+
+        <label className="capacity-label" htmlFor="load-shedding">
+          <span>Load shedding</span>
+          <strong>{loadShedding} kW</strong>
+        </label>
+        <input
+          id="load-shedding"
+          className="capacity-slider"
+          type="range"
+          min="0"
+          max={Number(topology.maximum_load)}
+          step="1"
+          value={loadShedding}
+          onChange={(event) => {
+            setLoadShedding(Number(event.target.value))
+            setDispatchMetrics(null)
+          }}
+          aria-valuetext={`${loadShedding} kilowatts to shed`}
+        />
+        <div className="slider-limits"><span>0 kW</span><span>{topology.maximum_load} kW</span></div>
+        {loadShedding > maximumSafeShedding && (
+          <p className="safety-warning" role="alert">
+            Maximum safe shedding is {maximumSafeShedding.toLocaleString()} kW. {criticalLoad.toLocaleString()} kW is locked by critical infrastructure protection rules.
+          </p>
+        )}
+
+        <button className="dispatch-button" type="button" onClick={executeDispatch} disabled={dispatching}>
+          {dispatching ? 'Running dispatch…' : 'Execute Surgical Dispatch'}
+        </button>
+        {dispatchMessage && <p className="dispatch-message" role="status">{dispatchMessage}</p>}
+        {dispatchMetrics && (
+          <section className="metrics-bar" aria-label="Post-dispatch performance metrics">
+            <div className="performance-metric">
+              <span>Post-Dispatch Active Load</span>
+              <strong>{dispatchMetrics.activeLoad.toLocaleString()} kW</strong>
+              <small>{dispatchMetrics.targetMet ? 'Shedding target met' : `Target ≤ ${dispatchMetrics.targetLoad.toLocaleString()} kW not met due to protection limits`}</small>
+            </div>
+            <div className="performance-metric">
+              <span>Revenue Recovery Efficiency</span>
+              <strong>{dispatchMetrics.revenueRecovery.toFixed(1)}%</strong>
+              <small>Load-weighted recovery across active transformers</small>
+            </div>
+            <div className="performance-metric">
+              <span>Critical Infrastructure Status</span>
+              <strong>{dispatchMetrics.criticalProtection}% Protected</strong>
+              <small>Critical transformers kept ON</small>
+            </div>
+            <div className="performance-metric">
+              <span>Solver Execution Status</span>
+              <strong>{dispatchMetrics.solverStatus}</strong>
+            </div>
+          </section>
+        )}
+      </aside>
       </div>
     </div>
   )

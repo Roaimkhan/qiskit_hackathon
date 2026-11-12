@@ -1,2 +1,6 @@
 qiskit
 fastapi
+qiskit_optimization
+numpy
+uvicorn
+qiskit_algorithms
