@@ -2,13 +2,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from typing import Any, Dict, List
-from threading import Lock
 from quantum_solver import quantum_dispatch
+from classical_solver import classical_dispatch
+from exact_algorithm import exact_dispatch
 from main import generate_topology
 
 app = FastAPI(title="Quantum APMS Dispatch Engine")
-_outage_counts_by_feeder: Dict[str, Dict[str, int]] = {}
-_outage_counts_lock = Lock()
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,27 +40,27 @@ class DispatchResponse(BaseModel):
     transformer_states: Dict[str, bool]
     optimization_info: Dict[str, Any]
 
-@app.post("/api/optimize-dispatch", response_model=DispatchResponse)
-def optimize_grid(data: DispatchRequest):
+def _run_dispatch(data: DispatchRequest, solver):
     try:
-        # Preserve historical outage counts between dispatches in this process.
         transformers_dict = [t.dict() for t in data.transformers]
         total_load_kw = sum(transformer["load_kw"] for transformer in transformers_dict)
         if data.load_shedding_kw > total_load_kw:
             raise HTTPException(status_code=422, detail="load_shedding_kw cannot exceed total transformer load")
 
-        with _outage_counts_lock:
-            outage_counts = dict(_outage_counts_by_feeder.get(data.feeder_id, {}))
-        selected, optimization_info = quantum_dispatch(
+        solver_output = solver(
             deficit_kw=data.load_shedding_kw,
             transformers=transformers_dict,
-            outage_counts=outage_counts,
         )
-        with _outage_counts_lock:
-            feeder_history = _outage_counts_by_feeder.setdefault(data.feeder_id, {})
-            for transformer_id, is_on in selected.items():
-                if not is_on:
-                    feeder_history[transformer_id] = feeder_history.get(transformer_id, 0) + 1
+        if isinstance(solver_output, tuple) and len(solver_output) == 2:
+            selected, optimization_info = solver_output
+        elif isinstance(solver_output, dict):
+            selected = solver_output.get("result", solver_output.get("transformer_states"))
+            optimization_info = solver_output.get("info", solver_output.get("optimization_info"))
+        else:
+            raise TypeError("Solver must return a (states, info) tuple or a result/info mapping")
+
+        if not isinstance(selected, dict) or not isinstance(optimization_info, dict):
+            raise TypeError("Solver output must include transformer states and optimization info mappings")
 
         return {
             "feeder_id": data.feeder_id,
@@ -76,3 +75,18 @@ def optimize_grid(data: DispatchRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/optimize-dispatch", response_model=DispatchResponse)
+def optimize_grid(data: DispatchRequest):
+    return _run_dispatch(data, quantum_dispatch)
+
+
+@app.post("/api/classical-dispatch", response_model=DispatchResponse)
+def optimize_grid_classical(data: DispatchRequest):
+    return _run_dispatch(data, classical_dispatch)
+
+
+@app.post("/api/exact-dispatch", response_model=DispatchResponse)
+def optimize_grid_exact(data: DispatchRequest):
+    return _run_dispatch(data, exact_dispatch)
