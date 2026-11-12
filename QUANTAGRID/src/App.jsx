@@ -1,24 +1,116 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
-function collectNodes(node, x, y, parentId = null) {
-  const current = { ...node, x, y, parentId }
-  const childNodes = []
+const NODE_WIDTH = 420
+const NODE_HEIGHT = 160
+const ROW_GAP = 90
 
-  if (!Array.isArray(node.children) || node.children.length === 0) {
-    return [current]
-  }
+function getNodeLabel(node) {
+  return node.customer_type || node.name || node.id
+}
 
-  const gap = node.children.length > 3 ? 180 : 220
-  const startX = x - ((node.children.length - 1) * gap) / 2
+function buildVerticalTopology(root) {
+  const allNodes = []
+  const rootX = 760
+  const rootY = 70
+  const regularChildren = (root.children || []).filter((child) => child.node_type !== 'lateral')
+  const lateralNode = (root.children || []).find((child) => child.node_type === 'lateral')
 
-  node.children.forEach((child, index) => {
-    const childX = startX + index * gap
-    const childY = y + 170
-    childNodes.push(...collectNodes(child, childX, childY, node.id))
+  const leftColumnNodes = regularChildren.slice(0, Math.ceil(regularChildren.length / 2))
+  const rightColumnNodes = regularChildren.slice(Math.ceil(regularChildren.length / 2))
+
+  const leftColumnX = 240
+  const rightColumnX = 1180
+  const firstColumnY = 300
+  const secondColumnY = 300
+
+  allNodes.push({
+    ...root,
+    parentId: null,
+    x: rootX - NODE_WIDTH / 2,
+    y: rootY,
+    width: NODE_WIDTH,
+    height: NODE_HEIGHT,
   })
 
-  return [current, ...childNodes]
+  leftColumnNodes.forEach((child, index) => {
+    allNodes.push({
+      ...child,
+      parentId: root.id,
+      x: leftColumnX,
+      y: firstColumnY + index * (NODE_HEIGHT + ROW_GAP),
+      width: NODE_WIDTH,
+      height: NODE_HEIGHT,
+    })
+  })
+
+  rightColumnNodes.forEach((child, index) => {
+    allNodes.push({
+      ...child,
+      parentId: root.id,
+      x: rightColumnX,
+      y: secondColumnY + index * (NODE_HEIGHT + ROW_GAP),
+      width: NODE_WIDTH,
+      height: NODE_HEIGHT,
+    })
+  })
+
+  const regularBottom = Math.max(
+    ...allNodes.filter((node) => node.parentId === root.id).map((node) => node.y + node.height),
+    0,
+  )
+
+  if (lateralNode) {
+    const lateralY = regularBottom + 160
+    allNodes.push({
+      ...lateralNode,
+      parentId: root.id,
+      x: rootX - NODE_WIDTH / 2,
+      y: lateralY,
+      width: NODE_WIDTH,
+      height: NODE_HEIGHT,
+    })
+
+    const lateralChildren = (lateralNode.children || []).map((child, index) => ({
+      ...child,
+      parentId: lateralNode.id,
+      x: rootX - NODE_WIDTH / 2 + (index === 0 ? -300 : 300),
+      y: lateralY + 220,
+      width: NODE_WIDTH,
+      height: NODE_HEIGHT,
+    }))
+
+    allNodes.push(...lateralChildren)
+  }
+
+  const width = 1600
+  const maxY = Math.max(...allNodes.map((node) => node.y + node.height))
+  const height = Math.max(1200, maxY + 180)
+
+  const edges = []
+
+  allNodes.forEach((node) => {
+    if (!node.parentId) return
+    const from = allNodes.find((candidate) => candidate.id === node.parentId)
+    if (!from) return
+    edges.push({ from, to: node })
+  })
+
+  return { nodes: allNodes, edges, width, height }
+}
+
+function buildConnectionPath(from, to) {
+  const startX = from.x + NODE_WIDTH / 2
+  const startY = from.y + NODE_HEIGHT * 0.72
+  const endX = to.x + NODE_WIDTH / 2
+  const endY = to.y + NODE_HEIGHT * 0.28
+
+  if (Math.abs(startX - endX) < 30) {
+    return `M ${startX} ${startY} L ${endX} ${endY}`
+  }
+
+  const bendY = Math.max(startY, endY) + 48
+  return `M ${startX} ${startY} V ${bendY} H ${endX} V ${endY}`
 }
 
 function App() {
@@ -38,22 +130,8 @@ function App() {
   }, [])
 
   const topologyData = useMemo(() => {
-    if (!topology) return { nodes: [], edges: [] }
-
-    const nodes = collectNodes(topology, 600, 80)
-    const nodeMap = new Map(nodes.map((node) => [node.id, node]))
-    const edges = []
-
-    nodes.forEach((node) => {
-      if (node.parentId && nodeMap.has(node.parentId)) {
-        edges.push({
-          from: nodeMap.get(node.parentId),
-          to: node,
-        })
-      }
-    })
-
-    return { nodes, edges }
+    if (!topology) return { nodes: [], edges: [], width: 1600, height: 1200 }
+    return buildVerticalTopology(topology)
   }, [topology])
 
   if (loading) {
@@ -66,41 +144,100 @@ function App() {
 
   return (
     <div className="app-shell">
-      <h1>Distribution Feeder Map</h1>
+      <div className="title-bar">
+        <div>
+          <p className="eyebrow">Power network overview</p>
+          <h1>Distribution Feeder Map</h1>
+        </div>
+      </div>
 
       <div className="topology-panel">
-        <svg viewBox="0 0 1200 750" preserveAspectRatio="xMidYMid meet">
+        <svg
+          viewBox={`0 0 ${topologyData.width} ${topologyData.height}`}
+          preserveAspectRatio="xMidYMid meet"
+          aria-label="Electrical feeder topology map"
+        >
           {topologyData.edges.map((edge, index) => (
-            <line
+            <path
               key={`${edge.from.id}-${edge.to.id}-${index}`}
-              x1={edge.from.x}
-              y1={edge.from.y + 52}
-              x2={edge.to.x}
-              y2={edge.to.y}
+              d={buildConnectionPath(edge.from, edge.to)}
               className="connection-line"
             />
           ))}
 
           {topologyData.nodes.map((node) => {
-            const kindClass = node.node_type === 'feeder' ? 'node-feeder' : node.node_type === 'lateral' ? 'node-lateral' : 'node-transformer'
+            const kindClass =
+              node.node_type === 'feeder'
+                ? 'node-feeder'
+                : node.node_type === 'lateral'
+                  ? 'node-lateral'
+                  : 'node-transformer'
+
+            const summaryLabel =
+              node.node_type === 'feeder'
+                ? node.name
+                : node.node_type === 'lateral'
+                  ? node.name
+                  : getNodeLabel(node)
+
+            const loadText = node.load ? `${node.load.value} ${node.load.unit}` : 'N/A'
 
             return (
-              <g key={node.id} transform={`translate(${node.x - 110}, ${node.y})`}>
-                <rect className={`node-card ${kindClass}`} width="220" height="92" rx="12" />
-                <text x="16" y="28" className="node-id">{node.id}</text>
-                <text x="16" y="48" className="node-name">
-                  {node.name || node.customer_type || node.node_type}
-                </text>
-                {node.load && (
-                  <text x="16" y="66" className="node-meta">
-                    Load: {node.load.value} {node.load.unit}
-                  </text>
-                )}
-                {node.priority && (
-                  <text x="16" y="82" className="node-meta priority">
-                    Priority: {node.priority}
-                  </text>
-                )}
+              <g key={node.id} transform={`translate(${node.x}, ${node.y})`}>
+                <foreignObject x="0" y="0" width={NODE_WIDTH} height={NODE_HEIGHT + 220}>
+                  <div className={`node-card ${kindClass}`}>
+                    <div className="node-header">
+                      <span className="node-icon-wrap" aria-label="transformer icon">
+                        <svg viewBox="0 0 24 24" className="node-icon" role="img" aria-hidden="true">
+                          <path d="M4 7.5a2.5 2.5 0 0 1 2.5-2.5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Zm3.5 0v9m9-9v9M8 10h8M8 14h8" />
+                          <path d="M12 3v2m0 16v2M3 12h2m14 0h2" opacity="0.18" />
+                        </svg>
+                      </span>
+
+                      <div className="node-title">
+                        <span className="node-id">{node.id}</span>
+                        <span className="node-name">{summaryLabel}</span>
+                      </div>
+
+                      <div className="node-load">{loadText}</div>
+                    </div>
+
+                    <div className="node-details">
+                      {node.priority && (
+                        <div className="detail-row">
+                          <span>Priority</span>
+                          <strong>{node.priority}</strong>
+                        </div>
+                      )}
+
+                      {node.bill_recovery && (
+                        <div className="detail-row">
+                          <span>Bill recovery</span>
+                          <strong>
+                            {node.bill_recovery.value}
+                            {node.bill_recovery.unit}
+                          </strong>
+                        </div>
+                      )}
+
+                      {node.constraint && (
+                        <div className="detail-row">
+                          <span>Constraint</span>
+                          <strong>
+                            {node.constraint.type} · {node.constraint.variable}={node.constraint.value}
+                          </strong>
+                        </div>
+                      )}
+
+                      {node.customer_type && node.node_type !== 'feeder' && (
+                        <div className="detail-row detail-note">
+                          <span>Site</span>
+                          <strong>{node.customer_type}</strong>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </foreignObject>
               </g>
             )
           })}
